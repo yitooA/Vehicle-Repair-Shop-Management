@@ -48,7 +48,6 @@ class VehicleContr extends Vehicles {
     } else {
       // create new vehicle
       $this->setVehicle($this->userId, $this->customerId, $this->make, $this->model, $this->year, $this->plateNumber);
-      header("Location: ../vehicle.php");
     }
   }
 }

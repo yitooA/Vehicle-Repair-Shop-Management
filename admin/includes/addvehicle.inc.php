@@ -11,7 +11,7 @@ if(isset($_POST['submit'])) {
 
 	// Grabbing the data
 	$userId = $_SESSION['userid'];
-	$customerId = $_GET['id'];
+	$customerId = $_POST['customer_id'];
 	$make = $_POST['make'];
 	$model = $_POST['model'];
 	$year = $_POST['year'];
@@ -25,12 +25,13 @@ if(isset($_POST['submit'])) {
 	$vehicle = new VehicleContr($userId, $customerId, $make, $model, $year, $plateNumber);
 
 	$errors = $vehicle->addVehicle();
+	$lastInsertedVehicleId = $vehicle->getVehicleId($userId, $customerId);
 	if (!empty($errors)) {
 		$_SESSION['errors'] = $errors;
-		header("Location: ../viewcustomer.php?id=". $_GET['id']);
+		header("Location: ../add-task.php?id=". $customerId . "&vId=" . $lastInsertedVehicleId);
 	} else {
 		unset($_SESSION['errors']);
-		header("Location: ../viewcustomer.php?id=". $_GET['id']);
+		header("Location: ../add-task.php?id=". $customerId . "&vId=" . $lastInsertedVehicleId);
 		exit();
 	}
 	

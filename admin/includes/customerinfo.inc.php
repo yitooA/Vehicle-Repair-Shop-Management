@@ -22,8 +22,9 @@
     'customerInfo' => $customerInfo,
     'vehicleOption' => $vehicleOptions
   );
-
-  header('cId:' . $customerId);
   // Return the response as JSON
   echo json_encode($response);
+
+  
+  header('../add-task.php?cId='.$customerId)
 ?>

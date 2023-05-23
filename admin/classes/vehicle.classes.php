@@ -5,7 +5,7 @@ include_once 'dbh.classes.php';
 class Vehicles extends Dbh
 {
 	protected function setVehicle($userId, $customerId, $make, $model, $year, $plateNumber) {
-		$sql = "INSERT INTO vehicle(user_id, customer_id, make, model, year, license_plate_number) VALUES (?, ?, ?, ?, ?, ?)";
+		$sql = "INSERT INTO vehicle(user_id, customer_id, make, model, manufatured_year, license_plate_number) VALUES (?, ?, ?, ?, ?, ?)";
 		$stmt = $this->connect()->prepare($sql);
 		$stmt->execute([$userId, $customerId, $make, $model, $year, $plateNumber]);
 	}
@@ -53,4 +53,15 @@ class Vehicles extends Dbh
 
 		return $resultCheck;
 	}
+
+	public function getVehicleId($userId, $customerId)
+{
+    $sql = "SELECT vehicle_id FROM vehicle WHERE user_id = ? AND customer_id = ? ORDER BY vehicle_id DESC LIMIT 1";
+    $stmt = $this->connect()->prepare($sql);
+    $stmt->execute([$userId, $customerId]);
+
+    $result = $stmt->fetchColumn();
+    return $result;
+}
+
 }

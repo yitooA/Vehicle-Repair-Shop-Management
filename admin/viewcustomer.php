@@ -252,301 +252,47 @@
 
 
 
-										<style>
-  .form-table-container {
-    margin-top: 20px;
-  }
+										<div class="form-inline d-flex w-100" id="parts_form" style="display: block;">
+											<div class="form-group">
+												<label for="service_type_parts">Service Type:</label>
+												<select class="form-control ml-2" id="service_type_parts" onchange="toggleForms(this.value)">
+													<option value="parts">Parts</option>
+													<option value="labor">Labor</option>
+												</select>
+											</div>
+											<div class="form-group mx-2">
+												<label for="part_number">Part#:</label>
+												<input type="text" class="form-control" id="part_number" name="part_number">
+											</div>
+											<div class="form-group mx-2">
+												<label for="description_parts">Description:</label>
+												<input type="text" class="form-control" id="description_parts" name="description_parts">
+											</div>
+											<div class="form-group mx-2">
+												<label for="price">Price:</label>
+												<input type="text" class="form-control" id="price" name="price">
+											</div>
+											<button type="button" class="btn btn-primary mx-2" onclick="addEntry()">Add</button>
+										</div>
 
-  .error {
-    color: red;
-  }
-</style>
-
-<div class="form-table-container">
-  <div class="form-inline d-flex w-100" id="parts_form" style="display: block;">
-    <div class="form-group">
-      <label for="service_type_parts">Service Type:</label>
-      <select class="form-control ml-2" id="service_type_parts" onchange="toggleForms(this.value)">
-        <option value="parts">Parts</option>
-        <option value="labor">Labor</option>
-      </select>
-    </div>
-    <div class="form-group mx-2">
-      <label for="part_number">Part#:</label>
-      <input type="text" class="form-control" id="part_number" name="part_number">
-    </div>
-    <div class="form-group mx-2">
-      <label for="description_parts">Description:</label>
-      <input type="text" class="form-control" id="description_parts" name="description_parts">
-    </div>
-    <div class="form-group mx-2">
-      <label for="quantity">Quantity:</label>
-      <input type="number" class="form-control" id="quantity" name="quantity">
-    </div>
-    <div class="form-group mx-2">
-      <label for="price">Price:</label>
-      <input type="text" class="form-control" id="price" name="price">
-    </div>
-    <button type="button" class="btn btn-primary mx-2" onclick="addEntry('parts')">Add</button>
-  </div>
-
-  <div class="form-inline d-flex w-100" id="labor_form" style="display: none;">
-    <div class="form-group">
-      <label for="service_type_labor">Service Type:</label>
-      <select class="form-control ml-2" id="service_type_labor" onchange="toggleForms(this.value)">
-        <option value="labor">Labor</option>
-        <option value="parts">Parts</option>
-      </select>
-    </div>
-    <div class="form-group mx-2">
-      <label for="description_labor">Description:</label>
-      <input type="text" class="form-control" id="description_labor" name="description_labor">
-    </div>
-    <div class="form-group mx-2">
-      <label for="rate">Price:</label>
-      <input type="text" class="form-control" id="rate" name="labor_price">
-    </div>
-    <button type="button" class="btn btn-primary mx-2" onclick="addEntry('labor')">Add</button>
-  </div>
-
-  <div id="entriesTable"></div>
-  <div id="total"></div>
-</div>
-
-<script>
-  // Initialize empty arrays to store entries
-  var partsEntries = [];
-  var laborEntries = [];
-
-  // Function to add an entry based on the selected service type
-  function addEntry(serviceType) {
-    var entry;
-    var isValid = true;
-
-    if (serviceType === 'parts') {
-      // Validate the form inputs
-      isValid = validateForm('part_number', 'description_parts', 'quantity', 'price');
-      if (!isValid) return;
-
-      // Create a parts entry object
-      entry = {
-        serviceType: serviceType,
-        partNumber: $('#part_number').val(),
-        description: $('#description_parts').val(),
-        quantity: $('#quantity').val(),
-        price: $('#price').val()
-      };
-      // Add the parts entry to the partsEntries array
-      partsEntries.push(entry);
-    } else if (serviceType === 'labor') {
-      // Validate the form inputs
-      isValid = validateForm('description_labor', 'rate');
-      if (!isValid) return;
-
-      // Create a labor entry object
-      entry = {
-        serviceType: serviceType,
-        description: $('#description_labor').val(),
-        price: $('#rate').val()
-      };
-      // Add the labor entry to the laborEntries array
-      laborEntries.push(entry);
-    }
-
-    // Reset the form inputs
-    $('input').val('');
-
-    // Generate the table with entries
-    generateEntriesTable();
-  }
-
-  // Function to generate the table with entries
-  function generateEntriesTable() {
-    // Clear the existing table
-    $('#entriesTable').empty();
-    $('#total').empty();
-
-    // Create a new table element
-    var table = $('<table>').addClass('table');
-
-    // Create the table header
-    var headerRow = $('<tr>');
-    headerRow.append($('<th>').text('Service Type'));
-    headerRow.append($('<th>').text('Part#'));
-    headerRow.append($('<th>').text('Description'));
-    headerRow.append($('<th>').text('Quantity'));
-    headerRow.append($('<th>').text('Price'));
-    headerRow.append($('<th>').text('Actions'));
-    table.append(headerRow);
-
-    // Iterate over partsEntries array and generate rows for parts entries
-    for (var i = 0; i < partsEntries.length; i++) {
-      var partsEntry = partsEntries[i];
-      var row = createRow(partsEntry, i);
-      table.append(row);
-    }
-
-    // Iterate over laborEntries array and generate rows for labor entries
-    for (var j = 0; j < laborEntries.length; j++) {
-      var laborEntry = laborEntries[j];
-      var row = createRow(laborEntry, j);
-      table.append(row);
-    }
-
-    // Append the table to the entriesTable div
-    $('#entriesTable').append(table);
-
-    // Calculate and display the total
-    var total = calculateTotal();
-    $('#total').text('Total: $' + total.toFixed(2));
-  }
-
-  // Function to create a row for an entry
-  function createRow(entry, index) {
-    var row = $('<tr>');
-    row.append($('<td>').text(entry.serviceType));
-    row.append($('<td>').text(entry.partNumber || ''));
-    row.append($('<td>').text(entry.description));
-    row.append($('<td>').text(entry.quantity || ''));
-    row.append($('<td>').text(entry.price));
-    var actions = $('<td>');
-    actions.append($('<button>').addClass('btn btn-primary').text('Edit').click(function() {
-      editEntry(entry, index);
-    }));
-    actions.append(' ');
-    actions.append($('<button>').addClass('btn btn-danger').text('Remove').click(function() {
-      removeEntry(entry, index);
-    }));
-    row.append(actions);
-    return row;
-  }
-
-  // Function to edit an entry
-  function editEntry(entry, index) {
-    // Update the form inputs based on the entry data
-    if (entry.serviceType === 'parts') {
-      $('#service_type_parts').val(entry.serviceType);
-      $('#part_number').val(entry.partNumber);
-      $('#description_parts').val(entry.description);
-      $('#quantity').val(entry.quantity);
-      $('#price').val(entry.price);
-      toggleForms('parts');
-    } else if (entry.serviceType === 'labor') {
-      $('#service_type_labor').val(entry.serviceType);
-      $('#description_labor').val(entry.description);
-      $('#rate').val(entry.price);
-      toggleForms('labor');
-    }
-
-    // Remove the edited entry from the array
-    if (entry.serviceType === 'parts') {
-      partsEntries.splice(index, 1);
-    } else if (entry.serviceType === 'labor') {
-      laborEntries.splice(index, 1);
-    }
-
-    // Generate the updated table
-    generateEntriesTable();
-  }
-
-  // Function to remove an entry
-  function removeEntry(entry, index) {
-    // Remove the entry from the array
-    if (entry.serviceType === 'parts') {
-      partsEntries.splice(index, 1);
-    } else if (entry.serviceType === 'labor') {
-      laborEntries.splice(index, 1);
-    }
-
-    // Generate the updated table
-    generateEntriesTable();
-  }
-
-  // Function to calculate the total
-  function calculateTotal() {
-    var total = 0;
-
-    // Calculate total for parts entries
-    for (var i = 0; i < partsEntries.length; i++) {
-      var entry = partsEntries[i];
-      total += parseFloat(entry.price) * parseInt(entry.quantity);
-    }
-
-    // Calculate total for labor entries
-    for (var j = 0; j < laborEntries.length; j++) {
-      var entry = laborEntries[j];
-      total += parseFloat(entry.price);
-    }
-
-    return total;
-  }
-
-  // Function to validate the form inputs
-  function validateForm(...inputIds) {
-    var isValid = true;
-
-    for (var i = 0; i < inputIds.length; i++) {
-      var inputId = inputIds[i];
-      var input = $('#' + inputId);
-      var value = input.val();
-
-      if (value === '') {
-        isValid = false;
-        input.addClass('error');
-      } else {
-        input.removeClass('error');
-      }
-
-      // Validate the price field to allow only numerical values
-      if (inputId === 'price' || inputId === 'rate') {
-        if (!/^\d+(\.\d{1,2})?$/.test(value)) {
-          isValid = false;
-          input.addClass('error');
-        } else {
-          input.removeClass('error');
-        }
-      }
-
-      // Validate the quantity field to allow only numerical values
-      if (inputId === 'quantity') {
-        if (!/^\d+$/.test(value)) {
-          isValid = false;
-          input.addClass('error');
-        } else {
-          input.removeClass('error');
-        }
-      }
-
-      // Validate the description field to disallow numbers
-      if (inputId.includes('description') && /\d/.test(value)) {
-        isValid = false;
-        input.addClass('error');
-      }
-    }
-
-    return isValid;
-  }
-
-  // Function to toggle the form between parts and labor
-  function toggleForms(selectedValue) {
-    if (selectedValue === 'parts') {
-      $('#labor_form').hide();
-      $('#description_labor').val('');
-      $('#rate').val('');
-      $('#parts_form').show();
-    } else if (selectedValue === 'labor') {
-      $('#parts_form').hide();
-      $('#part_number').val('');
-      $('#description_parts').val('');
-      $('#quantity').val('');
-      $('#price').val('');
-      $('#labor_form').show();
-    }
-  }
-
-  // Initial table generation
-  generateEntriesTable();
-</script>
+										<div class="form-inline d-flex w-100" id="labor_form" style="display: none;">
+											<div class="form-group">
+												<label for="service_type_labor">Service Type:</label>
+												<select class="form-control ml-2" id="service_type_labor" onchange="toggleForms(this.value)">
+													<option value="labor">Labor</option>
+													<option value="parts">Parts</option>
+												</select>
+											</div>
+											<div class="form-group mx-2">
+												<label for="description_labor">Description:</label>
+												<input type="text" class="form-control" id="description_labor" name="description_labor">
+											</div>
+											<div class="form-group mx-2">
+												<label for="rate">Price:</label>
+												<input type="text" class="form-control" id="rate" name="labor_price">
+											</div>
+											<button type="button" class="btn btn-primary mx-2" onclick="addEntry()">Add</button>
+										</div>
 
 
 
